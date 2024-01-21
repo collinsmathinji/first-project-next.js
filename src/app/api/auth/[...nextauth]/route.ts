@@ -4,7 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import * as bcrypt from "bcrypt";
 import NextAuth from "next-auth/next";
-
+import { NextApiRequest, NextApiResponse } from 'next';
 import { use } from "react";
 import { User } from "@prisma/client";
 
@@ -80,5 +80,4 @@ export const authOptions: AuthOptions = {
 };
 
 const handler = NextAuth(authOptions);
-export default handler;
-export { handler as GET, handler as POST };
+export default (req: NextApiRequest, res: NextApiResponse) => handler(req, res);
