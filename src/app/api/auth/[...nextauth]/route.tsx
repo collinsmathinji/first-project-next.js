@@ -80,8 +80,10 @@ const handler = NextAuth(authOptions);
 
 export default handler;
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
+export const getServerSideProps = async ({ req, res }) => {
+  await handler(req, res);
+  
+  // Add additional data fetching logic if needed
+  
+  return { props: {} };
 };
