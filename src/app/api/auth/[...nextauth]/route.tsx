@@ -1,3 +1,5 @@
+// src/app/api/auth/[...nextauth]/route.ts
+
 import prisma from "@/app/lib/prisma";
 import { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -5,10 +7,9 @@ import GoogleProvider from "next-auth/providers/google";
 import * as bcrypt from "bcrypt";
 import NextAuth from "next-auth/next";
 import { NextApiRequest, NextApiResponse } from 'next';
-import { use } from "react";
 import { User } from "@prisma/client";
 
-export const authOptions: AuthOptions = {
+const authOptions: AuthOptions = {
   pages: {
     signIn: "/auth/signin",
   },
@@ -23,7 +24,6 @@ export const authOptions: AuthOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID ?? "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
       idToken: true,
-
       authorization: {
         params: {
           scope: "openid profile email",
@@ -32,7 +32,6 @@ export const authOptions: AuthOptions = {
     }),
     CredentialsProvider({
       name: "Credentials",
-
       credentials: {
         username: {
           label: "User Name",
@@ -54,9 +53,9 @@ export const authOptions: AuthOptions = {
         if (!user) throw new Error("User name or password is not correct");
 
         if (!credentials?.password) throw new Error("Please Provide Your Password");
-        const isPassowrdCorrect = await bcrypt.compare(credentials.password, user.password);
+        const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
 
-        if (!isPassowrdCorrect) throw new Error("User name or password is not correct");
+        if (!isPasswordCorrect) throw new Error("User name or password is not correct");
 
         if (!user.emailVerified) throw new Error("Please verify your email first!");
 
@@ -65,13 +64,11 @@ export const authOptions: AuthOptions = {
       },
     }),
   ],
-
   callbacks: {
     async jwt({ token, user }) {
       if (user) token.user = user as User;
       return token;
     },
-
     async session({ token, session }) {
       session.user = token.user;
       return session;
@@ -80,6 +77,11 @@ export const authOptions: AuthOptions = {
 };
 
 const handler = NextAuth(authOptions);
-export default async function (req: NextApiRequest, res: NextApiResponse) {
-  await handler(req, res);
-}
+
+export default handler;
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
